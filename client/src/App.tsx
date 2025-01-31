@@ -1,63 +1,19 @@
-import { useMutation, useQuery } from '@apollo/client'
-import { useState } from 'react'
-
-import { CREATE_USER, DELETE_USER } from './mutation/userMutation'
-import { GET_ALL_USERS } from './query/userQuery'
-import {
-  CreateUserRequest,
-  CreateUserResponse,
-  DeleteUserRequest,
-  DeleteUserResponse,
-  GettAllUsersQuery,
-} from './types/userTypes'
+import { useUser } from './hooks/useUser'
 
 function App() {
   const {
-    data: users,
+    username,
+    age,
+    setUsername,
+    setAge,
+    createUser,
+    deleteUser,
+    users,
     loading,
+    createUserLoading,
     error,
-    refetch: refetchUsers,
-  } = useQuery<GettAllUsersQuery>(GET_ALL_USERS)
-
-  const [
-    createUserMutation,
-    { loading: createUserLoading },
-  ] = useMutation<CreateUserResponse, CreateUserRequest>(CREATE_USER)
-
-  const [
-    deleteUserMutation,
-  ] = useMutation<DeleteUserResponse, DeleteUserRequest>(DELETE_USER)
-
-  const [username, setUsername] = useState('')
-  const [age, setAge] = useState(0)
-
-  const createUser = async () => {
-    if (!username || !age) return
-
-    await createUserMutation({
-      variables: {
-        input: {
-          username,
-          age,
-        },
-      },
-    })
-
-    await refetchUsers()
-
-    setUsername('')
-    setAge(0)
-  }
-
-  const deleteUser = async (id: string) => {
-    await deleteUserMutation({
-      variables: {
-        id,
-      },
-    })
-
-    await refetchUsers()
-  }
+    refetchUsers,
+  } = useUser()
 
   if (loading) return <p>Users Loading...</p>
   if (createUserLoading) return <p>Creating User...</p>

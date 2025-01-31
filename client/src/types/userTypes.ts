@@ -23,3 +23,11 @@ export interface DeleteUserRequest {
 export interface DeleteUserResponse {
   deleteUser: User
 }
+
+export interface CreateUserSubscriptionData {
+  subscriptionData: {
+    data?: {
+      userCreated: User
+    }
+  }
+}

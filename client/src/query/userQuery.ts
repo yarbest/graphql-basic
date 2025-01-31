@@ -19,3 +19,22 @@ export const GET_USER = gql/* GraphQL */`
     }
   }
 `
+
+export const USER_CREATED = gql/* GraphQL */`
+  subscription {
+    userCreated {
+      id
+      username
+      age
+    }
+  }
+`
+
+// requires atleast one field to be returned, otherwise it doesn't listen to event
+export const USER_DELETED = gql/* GraphQL */`
+  subscription {
+    userDeleted {
+      id
+    }
+  }
+`
