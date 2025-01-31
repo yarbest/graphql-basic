@@ -18,7 +18,7 @@ export const schema = buildSchema(/* GraphQL */ `
     id: ID
     username: String!
     age: Int!
-    posts: [PostInput]    
+    posts: [PostInput]
   }
 
   input PostInput {
@@ -36,4 +36,10 @@ export const schema = buildSchema(/* GraphQL */ `
     createUser(input: UserInput!): User
     deleteUser(id: ID!): User
   }
-`)
+
+  type Subscription {
+    userCreated: User!
+    userDeleted: User
+  }
+`,
+)
