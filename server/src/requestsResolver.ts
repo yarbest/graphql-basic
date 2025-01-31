@@ -1,3 +1,4 @@
+import { GraphQLFieldResolver } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 
 const pubsub = new PubSub()
@@ -14,29 +15,27 @@ const users: User[] = [
   { id: '1', username: 'Alice', age: 25 },
 ]
 
-export const requestsResolver = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Resolver = GraphQLFieldResolver<any, any, Record<string, any>>
+type RequestType = 'Query' | 'Mutation' | 'Subscription'
+
+export const requestsResolver: Record<RequestType, Record<string, Resolver>> = {
   Query: {
     getAllUsers: () => {
       return users
     },
-    getUser: (_: object, { id }: { id: string }) => {
+    getUser: (_, { id }: Record<string, string>) => {
       return users.find(user => user.id === id)
     },
   },
-  // @graphql-tools\schema\cjs\addResolversToSchema
-  // requires to wrap in objects - Query/Mutation/Subscription
   Mutation: {
-    // In GraphQL resolvers, the first parameter is the parent (or root) object,
-    // which is the result returned from the resolver on the parent field.
-    // The second parameter is the args object, which contains the arguments passed to the field in the GraphQL query.
-    // The first parameter _ is the parent object, which is not used in this resolver.
-    createUser: async (_: object, { input }: { input: User }) => {
+    createUser: async (_: object, { input }: Record<string, User>) => {
       const newUser = { ...input, id: Date.now().toString() }
       users.push(newUser)
       await pubsub.publish('USER_CREATED', { userCreated: newUser })
       return newUser
     },
-    deleteUser: async (_: object, { id }: { id: string }) => {
+    deleteUser: async (_: object, { id }: Record<string, string>) => {
       const userIndex = users.findIndex(user => user.id === id)
       if (userIndex === -1) return null
 
@@ -47,11 +46,7 @@ export const requestsResolver = {
     },
   },
   Subscription: {
-    userCreated: {
-      subscribe: () => pubsub.asyncIterableIterator(['USER_CREATED']),
-    },
-    userDeleted: {
-      subscribe: () => pubsub.asyncIterableIterator(['USER_DELETED']),
-    },
+    userCreated: () => pubsub.asyncIterableIterator(['USER_CREATED']),
+    userDeleted: () => pubsub.asyncIterableIterator(['USER_DELETED']),
   },
 }

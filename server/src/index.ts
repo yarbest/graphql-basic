@@ -3,14 +3,14 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
 import { graphqlHTTP } from 'express-graphql'
+import { GraphQLSchema } from 'graphql'
 // eslint-disable-next-line import/no-unresolved
 import { useServer } from 'graphql-ws/use/ws'
 import { WebSocketServer } from 'ws'
 
 import { createServer, RequestListener } from 'http'
 
-import { requestsResolver } from './requestsResolver'
-import { schema as typeDefs } from './schemas/userSchema'
+import { MutationTypeWithResolvers, QueryTypeWithResolvers, SubscriptionTypeWithResolvers } from './schemas/userSchema'
 
 dotenv.config()
 
@@ -19,8 +19,11 @@ app.use(cors())
 
 // https://www.apollographql.com/docs/apollo-server/data/subscriptions
 const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers: requestsResolver,
+  typeDefs: new GraphQLSchema({
+    query: QueryTypeWithResolvers,
+    mutation: MutationTypeWithResolvers,
+    subscription: SubscriptionTypeWithResolvers,
+  }),
 })
 
 app.use('/graphql', graphqlHTTP({
